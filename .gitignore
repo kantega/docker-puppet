@@ -1,0 +1,11 @@
+data/puppetdb/ssl
+data/puppetdb-postgres
+data/postgres
+data/puppet/environments/
+data/puppet/ssh
+data/puppet/ssl
+data/puppet/keys
+.env
+*_bak
+*.bak
+*_old
