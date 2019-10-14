@@ -103,12 +103,12 @@ At this stage, the relationship between the Puppet server and the agent is estab
 /opt/puppetlabs/bin/puppet agent -t
 ```
 You should now see text flying across the screen with a bunch of Puppet-specific config but also the configuration you have defined for this host in your environment.
-```
 
 ## Autosign based on bash script
 
 With _policy based autosigning_, incomming CSRs can be signed based on logic in an executable, e.g. `bash`
 For the puppetserver, set the $AUTOSIGN environment variable to the path to the script and volume mount this script in docker-compose. The script could look something like:
+
 ```
 #!/usr/bin/env bash
 
