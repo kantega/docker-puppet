@@ -18,26 +18,11 @@ services:
       - ./data/puppet/ssl:/etc/puppetlabs/puppet/ssl
       - ./data/puppet/r10k:/etc/puppetlabs/r10k
       - ./data/puppet/ssh:/root/.ssh
-      - ./data/puppet/environments:/etc/puppetlabs/code/environments
-    links:
-      - puppetdb:puppetdb
+#      - ./data/puppet/environments:/etc/puppetlabs/code/environments
     environment:
       - PUPPETSERVER_HOSTNAME=$PUPPETSERVER_HOSTNAME
       - AUTOSIGN=$PUPPETSERVER_AUTOSIGN
-
-
-  puppetdb:
-    hostname: puppetdb
-    container_name: puppetdb
-    image: puppet/puppetdb:$PUPPETDB_VERSION
-    restart: unless-stopped
-    ports:
-      - 8081:8081
-    volumes:
-      - ./data/puppetdb/jetty.ini:/etc/puppetlabs/puppetdb/conf.d/jetty.ini
-      - ./data/puppetdb/ssl:/etc/puppetlabs/puppetdb/ssl
-    environment:
-      - PUPPETDB_PASSWORD=$POSTGRES_PASSWORD
+      - CA_ALLOW_SUBJECT_ALT_NAMES=${CA_ALLOW_SUBJECT_ALT_NAMES:-true}
 
   puppetdbpostgres:
     container_name: postgres
@@ -46,10 +31,31 @@ services:
     restart: unless-stopped
     environment:
       - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
-      - POSTGRES_USER=puppetdb
-      - POSTGRES_DATABASE=puppetdb
+      - POSTGRES_USER=${POSTGRES_USER:-puppetdb}
+      - POSTGRES_DATABASE=${POSTGRES_DATABASE:-puppetdb}
     volumes:
       - ./data/postgres/data:/var/lib/postgresql/data
+
+  puppetdb:
+    hostname: puppetdb
+    container_name: puppetdb
+    image: puppet/puppetdb:$PUPPETDB_VERSION
+    restart: unless-stopped
+    volumes:
+      - ./data/puppetdb/ssl:/etc/puppetlabs/puppetdb/ssl
+      - ./data/puppetdb/jetty.ini:/etc/puppetlabs/puppetdb/conf.d/jetty.ini
+    environment:
+      - PUPPETDB_PASSWORD=$POSTGRES_PASSWORD
+      - PUPPETDB_USER=${POSTGRES_USER:-puppetdb}
+      - PUPPETDB_POSTGRES_DATABASE=${POSTGRES_DATABASE:-puppetdb}
+      - PUPPETDB_NODE_TTL=${PUPPETDB_NODE_TTL:-1d}
+      - PUPPETDB_NODE_PURGE_TTL=${PUPPETDB_NODE_PURGE_TTL:-365d}
+      - PUPPETSERVER_HOSTNAME=puppet
+      - CERTNAME=$PUPPETDB_CERTNAME
+      - SSLDIR=/etc/puppetlabs/puppetdb/ssl
+    depends_on:
+      - puppetdbpostgres
+
 
   # Clone puppetboard repo and build it first
   # https://github.com/voxpupuli/puppetboard
@@ -58,6 +64,8 @@ services:
     hostname: puppetboard
     image: puppetboard
     restart: unless-stopped
+    depends_on:
+      - puppetdb
     ports:
       - "80:80"
     volumes:
