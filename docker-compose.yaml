@@ -18,7 +18,7 @@ services:
       - ./data/puppet/ssl:/etc/puppetlabs/puppet/ssl
       - ./data/puppet/r10k:/etc/puppetlabs/r10k
       - ./data/puppet/ssh:/root/.ssh
-#      - ./data/puppet/environments:/etc/puppetlabs/code/environments
+      - ./data/puppet/environments:/etc/puppetlabs/code/environments
     environment:
       - PUPPETSERVER_HOSTNAME=$PUPPETSERVER_HOSTNAME
       - AUTOSIGN=$PUPPETSERVER_AUTOSIGN
@@ -73,9 +73,9 @@ services:
     environment:
       - PUPPETDB_HOST=puppetdb
       - PUPPETDB_PORT=8081
-      - PUPPETDB_SSL_VERIFY=/etc/puppetlabs/puppetdb/ssl/ca.pem
-      - PUPPETDB_KEY=/etc/puppetlabs/puppetdb/ssl/private.pem
-      - PUPPETDB_CERT=/etc/puppetlabs/puppetdb/ssl/public.pem
+      - PUPPETDB_SSL_VERIFY=/etc/puppetlabs/puppetdb/ssl/certs/ca.pem
+      - PUPPETDB_KEY=/etc/puppetlabs/puppetdb/ssl/private_keys/private.pem
+      - PUPPETDB_CERT=/etc/puppetlabs/puppetdb/ssl/certs/public.pem
       - INVENTORY_FACTS='Hostname,fqdn, IP Address,ipaddress'
       - ENABLE_CATALOG=True
       - GRAPH_FACTS='architecture,puppetversion,osfamily'
